@@ -1,0 +1,90 @@
+services:
+  # Caddy Reverse Proxy with Automatic HTTPS
+  proxy:
+    image: caddy:2-alpine
+    container_name: thatskin_prod_proxy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: "${DOMAIN:-thatskin.com}"
+      API_DOMAIN: "${API_DOMAIN:-api.thatskin.com}"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+      - backend
+
+  # Next.js Storefront (Production Standalone)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: thatskin_prod_frontend
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      API_URL: "http://backend:8000/api/v1"
+      NEXT_PUBLIC_SITE_URL: "https://${DOMAIN:-thatskin.com}"
+      USE_MOCK_DATA: "false"
+    expose:
+      - "3000"
+    depends_on:
+      - backend
+
+  # Laravel REST API (Production PHP-FPM)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: thatskin_prod_backend
+    restart: always
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_KEY: "${APP_KEY}"
+      APP_URL: "https://${API_DOMAIN:-api.thatskin.com}"
+      FRONTEND_URL: "https://${DOMAIN:-thatskin.com}"
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: "${DB_DATABASE:-skincare_db}"
+      DB_USERNAME: "${DB_USERNAME:-skincare_user}"
+      DB_PASSWORD: "${DB_PASSWORD:-skincare_secret}"
+      ADMIN_EMAIL: "${ADMIN_EMAIL:-admin@thatskin.com}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD}"
+      FILESYSTEM_DISK: "${FILESYSTEM_DISK:-local}"
+    expose:
+      - "8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # PostgreSQL 16 Relational Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: thatskin_prod_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: "${DB_DATABASE:-skincare_db}"
+      POSTGRES_USER: "${DB_USERNAME:-skincare_user}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD:-skincare_secret}"
+    volumes:
+      - prod_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-skincare_user} -d ${DB_DATABASE:-skincare_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  prod_postgres_data:
+    name: thatskin_prod_postgres_data
+  caddy_data:
+    name: thatskin_prod_caddy_data
+  caddy_config:
+    name: thatskin_prod_caddy_config

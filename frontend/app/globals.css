@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #F6FBFA;
+  --ink: #12302A;
+  --muted: #5B7771;
+  --accent: #0B8A6B;
+  --soft: #DDF4EC;
+  --surface: #FFFFFF;
+  --line: #DDEBE7;
+  --onaccent: #FFFFFF;
+  --warn: #9A6B00;
+  --sky: #DFF0F9;
+  --skya: #4AA6D1;
+  --lemon: #FFF4D1;
+  --lemona: #E3B52F;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0E1A18;
+    --ink: #E8F4F1;
+    --muted: #9BB5AF;
+    --accent: #4FD1AE;
+    --soft: #16302A;
+    --surface: #14241F;
+    --line: #243B35;
+    --onaccent: #0E1A18;
+    --warn: #E8C95A;
+    --sky: #14303D;
+    --skya: #6CC0E8;
+    --lemon: #3A3517;
+    --lemona: #E8C95A;
+  }
+}
+
+@theme {
+  --color-bg: var(--bg);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-soft: var(--soft);
+  --color-surface: var(--surface);
+  --color-line: var(--line);
+  --color-onaccent: var(--onaccent);
+  --color-warn: var(--warn);
+  --color-sky: var(--sky);
+  --color-skya: var(--skya);
+  --color-lemon: var(--lemon);
+  --color-lemona: var(--lemona);
+
+  --font-display: var(--font-anton), "Impact", "Arial Black", sans-serif;
+  --font-logo: var(--font-cormorant), "Georgia", serif;
+  --font-body: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  min-height: 100vh;
+  position: relative;
+}
+
+.hero-glow-bg {
+  background-color: var(--bg);
+  background-image: radial-gradient(ellipse 75% 45% at 50% 88%, var(--soft) 0%, transparent 70%);
+  overflow-x: hidden;
+  max-width: 100vw;
+}

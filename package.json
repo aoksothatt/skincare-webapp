@@ -1,0 +1,18 @@
+{
+  "name": "thatskin-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "thatskin — Skincare E-Commerce Platform (Next.js + Laravel)",
+  "scripts": {
+    "setup": "npm --prefix frontend install && (cd backend && composer install || echo Composer skipped)",
+    "dev": "concurrently -n frontend,backend -c cyan,green \"npm --prefix frontend run dev\" \"cd backend && php artisan serve --port=8000\"",
+    "db:up": "docker compose up -d postgres",
+    "db:down": "docker compose down",
+    "backend:test": "cd backend && php artisan test",
+    "frontend:build": "npm --prefix frontend run build",
+    "lint": "npm --prefix frontend run lint"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
