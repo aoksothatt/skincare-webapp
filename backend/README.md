@@ -1,53 +1,82 @@
-# thatskin — Laravel REST API Backend
+# thatskin Backend API
 
-The decoupled JSON API backend for **thatskin**, built with Laravel 11, PostgreSQL, and Sanctum.
+Decoupled Laravel 11/12 JSON REST API for the **thatskin** skincare e-commerce platform.
 
-## Architecture
+## Requirements
+- PHP 8.3+ with `pdo`, `pdo_pgsql`, `zip`, `bcmath`, `curl`, and `openssl` extensions.
+- Composer 2.x
+- PostgreSQL 16 (or Docker Desktop)
 
-- **Stateless JSON REST API**: Versioned under `/api/v1/*`.
-- **Database**: PostgreSQL 16 with indexed foreign keys, slugs, and composite filters.
-- **Authentication**: Laravel Sanctum bearer tokens with rate-limited login endpoints.
-- **Strict Quality**: Form Requests for validation, API Resources for output formatting, strict decimal monetary precision, and eager loading to prevent N+1 queries.
+## Local Development Setup
 
-## Environment Setup
-
+### 1. Environment Configuration
 Copy `.env.example` to `.env`:
-
 ```bash
 cp .env.example .env
-php artisan key:generate
 ```
 
-### PostgreSQL Database Configuration
-
+Ensure database credentials match your environment. In the default Docker setup (`docker compose up -d postgres` from repo root), port `5433` is exposed on the host to avoid port 5432 host collisions:
 ```ini
+APP_NAME=thatskin
+APP_ENV=local
+APP_KEY=...
+APP_DEBUG=true
+APP_URL=http://localhost:8000
+FRONTEND_URL=http://localhost:3000
+
 DB_CONNECTION=pgsql
 DB_HOST=127.0.0.1
-DB_PORT=5432
+DB_PORT=5433
 DB_DATABASE=skincare_db
 DB_USERNAME=skincare_user
 DB_PASSWORD=skincare_secret
 ```
 
-## Common Commands
-
+Generate the application encryption key:
 ```bash
-# Start local PHP API server
+php artisan key:generate
+```
+
+### 2. Database Migrations
+Run database migrations:
+```bash
+php artisan migrate
+```
+To refresh the database:
+```bash
+php artisan migrate:fresh
+```
+
+### 3. Run Development Server
+Start the Laravel local server:
+```bash
 php artisan serve --port=8000
+```
+The API is available at `http://localhost:8000`.
 
-# Run database migrations and seeders
-php artisan migrate:fresh --seed
-
-# Execute test suite (Pest / PHPUnit)
+### 4. Run Test Suite
+Run PHPUnit test suite:
+```bash
 php artisan test
 ```
 
-## Docker
+## API Endpoints (v1)
 
-```bash
-# Build backend image
-docker build -t thatskin-backend:latest .
-
-# Run container
-docker run -p 8000:8000 --env-file .env thatskin-backend:latest
+### Health Check
+- **Route**: `GET /api/v1/health`
+- **Headers**: `Accept: application/json`
+- **Response**: `200 OK`
+```json
+{
+  "status": "ok"
+}
 ```
+
+### Consistent JSON Errors
+All `/api/*` routes return standardized JSON errors:
+```json
+{
+  "message": "Resource not found"
+}
+```
+Validation errors return `422 Unprocessable Content` with `{ "message": "...", "errors": { ... } }`.
